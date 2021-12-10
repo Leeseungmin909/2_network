@@ -1,0 +1,44 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class ChatClient {
+
+    Socket socket;  //소켓을 정의
+    BufferedReader in;  // 읽어들이는 in을 정의
+    PrintWriter out;  // 내용을 써서 출력하는 out을 정의
+
+    public ChatClient(String ip, int port){ // 클라이언트의 소켓을 생성
+        try {
+            socket = new Socket(ip, port);
+            printInfo();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+    public void communicate() { // 채팅기능
+        MsgSender sender = new MsgSender("클라이언트", socket);  // 클라이언트가 소켓으로 보낸 메시지을 MsgSender클래스에 반영합니다
+        MsgReceiver receiver = new MsgReceiver("클라이언트", socket); // 클라이언트가 소켓으로 받은 메시지을 MsgReceiver클래스에 반영합니다
+        sender.start(); // sender 실행
+        receiver.start(); // receiver 실행
+    }
+    public void close() { // 클라이언트의 종료 기능을 담당함
+        try {
+            socket.close();
+        } catch(IOException e) {
+            System.out.println(e.toString()); }
+        }
+
+    public void printInfo() { // 정보 표시 메소드
+        System.out.println(">> 서버 접속에 성공했습니다.");
+        System.out.println("클라이언트 포트번호:" + socket.getLocalPort()); // 클라이언트의 포트번호를 소켓에서 받아옵니다
+        System.out.println("서버 주소: " + socket.getInetAddress()); // 현재 사용중인 인터넷 주소를 받아옵니다
+        System.out.println("서버 포트번호: " + socket.getPort() + '\n'); // 소켓의 포트번호를 받아옵니다
+        System.out.println(">>서버에 전달할 메시지를 쓰고 Enter를 누르세요." + '\n'); //서버에 보낼 메시지를 입력받습니다
+    }
+    public static void main(String[] args) {  // 메인부
+        ChatClient client = new ChatClient("192.168.55.160",7070); //이 부분 본인 ip로 바꿔야함
+        client.communicate();  // 메시지 주고받는 채팅기능 활성화
+    }
+}
